@@ -1,0 +1,25 @@
+3
+www.yahoo.com
+1
+10.2.45.67
+www.annauniv.edu
+1
+197.34.53.122
+www.google.com
+1
+10.2.45.67
+142.89.78.66
+
+Yes
+300.8.35.79
+197.34.53.122
+196.34.53.122
+
+-----
+client 1
+www.annauniv.edu
+-----
+client 2
+www.yahoo.com
+www.yahoo.com
+
