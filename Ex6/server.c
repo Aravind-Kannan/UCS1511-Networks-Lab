@@ -1,6 +1,18 @@
 #include "common.h"
 #include <math.h> //pow()
 
+void invert(char message[], int i)
+{
+    if(message[i] =='1')
+    {
+        message[i] = '0';
+    }
+    else if(message[i] =='0')
+    {
+        message[i] = '1';
+    }
+}
+
 int calcNumberRedundantBits(int m)
 {
     int r = 0;
@@ -118,6 +130,23 @@ int main()
     calcRedundantBits(message, m, r);
 
     printf("Parity calc Message: %s\n", message);
+
+    char choice[LIMIT];
+    printf("Do you want to introduce error? [Yes/No]: ");
+    scanf(" %[^\n]%*c", choice);
+    if(strcmp(choice, "Yes") == 0)
+    {
+        int n = 0;
+        printf("Enter index to introduce error: ");
+        do {
+            if(n < 0 || n > m + r)
+                printf("Re-enter valid index: ");
+            scanf("%d", &n);
+        } while(n < 0 || n > m + r);
+        invert(message, n);
+    }
+
+    printf("Error Introduced Message: %s\n", message);
 
     // write message to client_socket
     write(client_socket, message, sizeof(message));
