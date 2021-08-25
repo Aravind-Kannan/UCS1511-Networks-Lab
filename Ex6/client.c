@@ -58,6 +58,29 @@ int errorDetect(char message[], int m, int r, char check[])
     return flag;
 }
 
+void extractMsg(char message[], int m, int r)
+{
+    char payload[LIMIT];
+    int index = m - 1;
+    int redundantBit = 0;
+
+    for(int i = 1; i <= m + r; i++)
+    {
+        if(i == pow(2, redundantBit))
+        {
+            redundantBit++;
+        }
+        else
+        {
+            payload[index--] = message[m + r - i];
+        }
+    }
+
+    payload[m] = '\0';
+
+    strcpy(message, payload);
+}
+
 int main()
 {
     // create a socket
@@ -107,7 +130,9 @@ int main()
         errorBit = (int)strtol(check, NULL, 2);
         printf("Error located at: %s [%d]\n", check, errorBit);
         invert(message, m + r - errorBit);
-        printf("Corrected message: %s\n", message);
+        printf("Corrected message with parity: %s\n", message);
+        extractMsg(message, m, r);
+        printf("\nMessage: %s\n", message);
     }
     else
     {   
