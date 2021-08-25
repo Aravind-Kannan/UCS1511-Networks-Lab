@@ -137,13 +137,14 @@ int main()
     if(strcmp(choice, "Yes") == 0)
     {
         int n = 0;
+        printf("1-based index from Left to Right:\n");
         printf("Enter index to introduce error: ");
         do {
             if(n < 0 || n > m + r)
                 printf("Re-enter valid index: ");
             scanf("%d", &n);
         } while(n < 0 || n > m + r);
-        invert(message, n);
+        invert(message, n - 1);
     }
 
     printf("Error Introduced Message: %s\n", message);
