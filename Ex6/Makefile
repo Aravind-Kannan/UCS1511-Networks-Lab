@@ -1,10 +1,13 @@
-server:
-	rm server
+clean:
+	rm -f pattern
+	rm -f server
+	rm -f client
+
+send:
 	gcc server.c -o server -lm
 
-client:
+recv:
 	gcc client.c -o client -lm
 
 p:
-	rm pattern
 	gcc pattern.c -o pattern -lm
