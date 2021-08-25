@@ -23,7 +23,7 @@ void invert(char message[], int i)
 int errorDetect(char message[], int m, int r, char check[])
 {
     int flag = 0;
-    int c = 0;
+    int c = r - 1;
     for(int i = 1; i <= (int)pow(2,r-1); i *= 2)
     {
         int count = 0;
@@ -45,15 +45,15 @@ int errorDetect(char message[], int m, int r, char check[])
         if(count % 2 == 1) // if not, then do
         {
             flag = 1;
-            check[c++] = '1';
+            check[c--] = '1';
         }
         else
         {
-            check[c++] = '0';
+            check[c--] = '0';
         }
     }
 
-    check[c] = '\0';
+    check[r] = '\0';
 
     return flag;
 }
@@ -89,7 +89,7 @@ int main()
     char check[LIMIT];
     int errorBit = 0;
 
-    printf("Received message: %s ", message);
+    printf("Received message: %s \n", message);
 
     int m = strlen(message);
     int r = calcNumberRedundantBits(m);
