@@ -60,11 +60,36 @@ int errorDetect(char message[], int m, int r, char check[])
 
 int main()
 {
-    char message[LIMIT], check[LIMIT];
+    // create a socket
+    int server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if(server_socket == -1)
+    {
+        printf("Error in creating socket...\n"); return -1;
+    }
+
+    // server address to bind
+    struct sockaddr_in server_address;
+    bzero(&server_address, sizeof(server_address));
+    server_address.sin_family = AF_INET;
+    server_address.sin_port = htons(PORT);
+    server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    // check for error in connection
+    if(connect(server_socket, (struct sockaddr *) &server_address, sizeof(server_address)) == -1) 
+    {
+        printf("Error in connecting to server :/ Try again:(...\n");
+        close(server_socket);
+        return -1;
+    }
+
+    char message[LIMIT];
+
+    read(server_socket, &message, sizeof(message));
+
+    char check[LIMIT];
     int errorBit = 0;
 
-    printf("Received message: ");
-    scanf(" %[^\n]%*c", message);
+    printf("Received message: %s ", message);
 
     int m = strlen(message);
     int r = calcNumberRedundantBits(m);
@@ -88,6 +113,8 @@ int main()
     {   
         printf("No Error!\n");
     }
+
+    close(server_socket);
 
     return 0;
 }

@@ -72,6 +72,34 @@ void calcRedundantBits(char message[], int m, int r)
 
 int main()
 {
+    // create a socket
+    int server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if(server_socket == -1)
+    {
+        printf("Error in creating socket...\n"); return -1;
+    }
+
+    // server address to bind
+    struct sockaddr_in server_address;
+    bzero(&server_address, sizeof(server_address));
+    server_address.sin_family = AF_INET;
+    server_address.sin_port = htons(PORT);
+    server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    // bind server_address
+    if(bind(server_socket, (struct sockaddr *) &server_address, sizeof(server_address)) == -1)
+    {
+        printf("Error in binding address to socket...\n"); return -1;
+    }
+
+    // listen on server_socket
+    listen(server_socket, 5);
+
+    printf("Waiting for client :/...\n");
+
+    int client_socket = accept(server_socket, NULL, NULL);
+
+    // accept a message and parse it for hamming code by adding redudant bits
     char message[LIMIT];
 
     printf("Enter message: ");
@@ -90,6 +118,12 @@ int main()
     calcRedundantBits(message, m, r);
 
     printf("Parity calc Message: %s\n", message);
+
+    // write message to client_socket
+    write(client_socket, message, sizeof(message));
+
+    // close all OPEN file descriptors
+    close(server_socket);
 
     return 0;
 }
