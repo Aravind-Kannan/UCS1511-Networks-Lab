@@ -6,3 +6,5 @@
 4. Ex4: Simulation of ARP protocol using TCP
 5. Ex5: Simulation of DNS using UDP
 6. Ex6: Simulation of error correction code- Hamming code
+7. Ex7: Webpage download using HTTP
+8. Ex8: Study of Network simulator NS
