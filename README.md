@@ -8,3 +8,6 @@
 6. Ex6: Simulation of error correction code- Hamming code
 7. Ex7: Webpage download using HTTP
 8. Ex8: Study of Network simulator NS
+9. Ex9: Simulation of congestion control algorithms
+10. Ex10: Simulation of Routing protocol
+11. Ex11: Performance Evaluation of TCP and UDP connections sharing a bottleneck link
