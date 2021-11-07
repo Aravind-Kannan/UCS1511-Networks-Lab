@@ -1,120 +1,72 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>	 // strcpy()
-#include <strings.h> // bzero()
+#include "common.h"
 
-#include <sys/types.h>  // socket()
-#include <sys/socket.h> // socket()
-
-#include <netinet/in.h>
-#include <arpa/inet.h> 
-
-#include <unistd.h>
-
-#include <netdb.h> // gethostbyname()
-
-#include <sys/types.h> // open()
-#include <sys/stat.h>  // open()
-#include <fcntl.h>     // open()
-
-
-#define LIMIT 1024
-#define PORT 80
+// Testcase: www.africau.edu/images/default/sample.pdf
 
 int main(int argc, char* argv[]) {
 
-    // Argument validation
-    if (argc != 2) {
-        printf("Error!\nUsage: ./download [webpage-link]\n");
-        return -1;
-    }
+	if (argc != 2)
+	{
+		printf("Usage: ./client [URL]\n");
+		return -1;
+	}
+	
+	char params[2][LIMIT];
+	
+	if(strstr(argv[1], "/"))
+	{
+		int i = 0, j = 0;
+		for(; argv[1][i] != '/'; i++)
+		{
+			params[0][i] = argv[1][i];
+		}
+		params[0][i + 1] = '\0';
+		
+		for(; argv[1][i] != '\0'; i++, j++)
+		{
+			params[1][j] = argv[1][i];
+		}
+		params[0][j + 1] = '\0';
+	}
+	else
+	{
+		strcpy(params[0], argv[1]);
+		strcpy(params[1], "/");
+	}
+	
+	char ip[LIMIT], request[LIMIT * LIMIT], response[LIMIT];
+	
+	struct hostent* hent = gethostbyname(params[0]);
+	strcpy(ip, inet_ntoa(*((struct in_addr*)hent->h_addr_list[0])));
+	printf("\nIP address of %s: %s\n", params[0], ip);
+	printf("params[0] = %s\nparams[1] = %s\n", params[0], params[1]);
 
-    // Process Arguments
-    char arr[2][LIMIT];
-    if ((strstr(argv[1], "/"), "/") == 0)
-    {
-
-        strcpy(arr[0], strtok(argv[1], "/"));
-        sprintf(arr[0], "/%s", arr[1]);
-        strcpy(arr[1], strtok(NULL, " "));
-    }
-    else
-    {
-        strcpy(arr[0], "/");
-        strcpy(arr[1], argv[1]);
-    }
-
-    // Find IPv4
-    char target[LIMIT];
-    strcpy(target, argv[1]);
-    printf("Webpage: %s\n", target);
-
-    struct hostent* hent = gethostbyname(target);
-
-    // Convert: char* to in_addr* (IPv4 conversion)
-    // Dereference and supply to: char *inet_ntoa(struct in_addr in);
-    // printf("%s \n", inet_ntoa(*((struct in_addr *)hent->h_addr_list[0])));
-
-    char ip[LIMIT];
-    strcpy(ip, inet_ntoa(*((struct in_addr*)hent->h_addr_list[0])));
-    // printf("ip: %s\n", ip);
-
-    // Create TCP socket 
-    int client_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (client_socket == -1)
-    {
-        printf("Error in creating socket...\n");
-    }
-
-    // Server address to connect
-    struct sockaddr_in server_address;
-    bzero(&server_address, sizeof(server_address));
-    server_address.sin_family = AF_INET;
-    server_address.sin_port = htons(PORT);
-    server_address.sin_addr.s_addr = inet_addr(ip);
-
-    size_t server_address_length = sizeof(server_address);
-
-    // Establish connection
-    int connection_status = connect(client_socket, (struct sockaddr*)&server_address, server_address_length);
-    if (connection_status == -1) {
-        printf("Error in connecting...\n");
-    }
-
-    char request[LIMIT * LIMIT];
-    // sprintf(request, "GET / HTTP/1.1\r\nHost: %s \r\n\r\n", ip);
-    // sprintf(request, "GET /wp-content/uploads/2021/02/NIRF-2021-SSNCE-ENGG.pdf HTTP/1.1\r\nHost: www.ssn.edu.in\r\n\r\n");
-    sprintf(request, "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n", arr[0], arr[1]);
-    // printf("-----------\n%s\n-----------\n", request);
-
-    // Send request
-    if (send(client_socket, request, strlen(request), 0) < 0)
-    {
-        printf("Error in sending...\n");
-        return -1;
-    }
-
-    // Accept filename
-    char docName[LIMIT];
-    printf("Enter the new file name: ");
-    scanf("%[^\n]%*c", docName);
-
-    // Store response in a file
-    int fd = creat(docName, S_IRWXU);
-
-    char response[LIMIT];
-    int bytes;
-    while ((bytes = read(client_socket, response, sizeof(response))) > 0)
-    {
-        write(fd, response, bytes);
-        // write(0, response, bytes);
-    }
-
-    printf("Downloaded to %s...\n", docName);
-
-    close(fd);
-    close(client_socket);
-
-    return 0;
-
+	// Socket and paste to file
+	SA_IN server;
+	server.sin_family = AF_INET;
+	server.sin_port = htons(PORT);
+	server.sin_addr.s_addr = inet_addr(ip);
+	
+	int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+	int connStatus = connect(clientSocket, (SA*)&server, sizeof(server));
+	sprintf(request, "GET %s HTTP/1.1\r\nHost: %s \r\n\r\n", params[1], params[0]);
+	
+	send(clientSocket, request, sizeof(request), 0);
+	
+	int bytes = 0;
+	
+	char fileName[LIMIT];
+	printf("Enter file name: ");
+	scanf("%[^\n]*c", fileName);
+	
+	int fd = creat(fileName, S_IRWXU);
+	
+	while((bytes = recv(clientSocket, response, sizeof(response), 0)) != 0)
+	{
+		write(fd, response, bytes);
+	}
+	
+	close(fd);
+	close(clientSocket);
+	
+	return 0;
 }
