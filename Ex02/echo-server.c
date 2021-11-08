@@ -8,7 +8,7 @@ int main()
 	server.sin_addr.s_addr = inet_addr(IP);
 	
 	int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-	check(serverSocket, "creating client socket");
+	check(serverSocket, "creating server socket");
 	
 	check(bind(serverSocket, (SA*)&server, sizeof(server)), "binding");
 	check(listen(serverSocket, 5), "listening");
